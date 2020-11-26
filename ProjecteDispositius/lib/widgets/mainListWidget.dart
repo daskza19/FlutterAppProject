@@ -13,7 +13,7 @@ class MainListWidget extends StatelessWidget {
     return Container(
       height: 100,
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.5),
+        color: Colors.black.withOpacity(0.6),
         borderRadius: BorderRadius.all(Radius.circular(10)),
       ),
       padding: EdgeInsets.all(8),

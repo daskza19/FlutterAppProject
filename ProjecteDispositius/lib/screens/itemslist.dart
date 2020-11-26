@@ -47,12 +47,18 @@ class _TodoListPageState extends State<TodoListPage> {
   Widget _buildTodoList(List<ItemMedia> docs) {
     final todos = FirebaseFirestore.instance.collection('ListToView');
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Todo List Firebase'),
-      ),
       body: Column(
         children: [
-          Expanded(
+          Container(
+            height: MediaQuery.of(context).size.height,
+            width: MediaQuery.of(context).size.width,
+            padding: EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage("assets/background.gif"),
+                fit: BoxFit.fitWidth,
+              ),
+            ),
             child: ListView.builder(
               itemCount: docs.length,
               itemBuilder: (context, index) {
@@ -61,7 +67,14 @@ class _TodoListPageState extends State<TodoListPage> {
                   height: 8,
                 );
                 return Container(
-                  child: MainListWidget(item: item),
+                  child: Column(
+                    children: [
+                      MainListWidget(item: item),
+                      SizedBox(
+                        height: 8,
+                      ),
+                    ],
+                  ),
                 );
               },
             ),

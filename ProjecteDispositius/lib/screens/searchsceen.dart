@@ -39,9 +39,14 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Busca")),
-      body: Padding(
+      body: Container(
         padding: EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage("assets/background.gif"),
+            fit: BoxFit.fitWidth,
+          ),
+        ),
         child: Column(
           children: [
             TextField(
