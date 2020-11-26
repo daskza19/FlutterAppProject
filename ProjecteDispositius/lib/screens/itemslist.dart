@@ -4,9 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ProjecteDispositius/item.dart';
 import 'package:flutter/material.dart';
 import 'package:omdb_dart/omdb_dart.dart';
-import 'package:http/http.dart' as http;
-
-import '../main.dart';
 
 class TodoListPage extends StatefulWidget {
   @override
@@ -74,11 +71,7 @@ class _TodoListPageState extends State<TodoListPage> {
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
         onPressed: () async {
-          getMovie("tt0172495").then((value) {
-            todos.add(value.toFirestore());
-          }, onError: (error) {
-            //Do nothing
-          });
+          _nuevoItem();
         },
       ),
     );
@@ -104,6 +97,30 @@ class _TodoListPageState extends State<TodoListPage> {
     );
   }
 
+  void _nuevoItem() {
+    ItemMedia _tempItem = ItemMedia();
+    Navigator.of(context)
+        .push(
+      MaterialPageRoute(
+        builder: (_) => SearchScreen(
+          item: _tempItem,
+        ),
+      ),
+    )
+        .then((item) {
+      if (item != null) {
+        ItemMedia _tempItem = item;
+        getMovie(_tempItem.mediaName).then((value) {
+          if (value.valoration != null) {
+            FirebaseFirestore.instance
+                .collection('ListToView')
+                .add(value.toFirestore());
+          }
+        });
+      }
+    });
+  }
+
   Future<ItemMedia> getMovie(String _name) async {
     Omdb client = new Omdb('e707dd75', _name);
     await client.getMovie();
@@ -116,6 +133,7 @@ class _TodoListPageState extends State<TodoListPage> {
     _tempItemMedia.valoration = client.movie.imdbRating;
     _tempItemMedia.posterURL = client.movie.poster;
     _tempItemMedia.genres = client.movie.genre;
+    _tempItemMedia.movieID = client.movie.imdbID;
 
     return _tempItemMedia;
   }
