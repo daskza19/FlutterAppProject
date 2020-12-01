@@ -1,6 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:omdb_dart/omdb_dart.dart';
 
 import 'screens/itemslist.dart';
 
