@@ -59,24 +59,102 @@ class _TodoListPageState extends State<TodoListPage> {
                 fit: BoxFit.fitWidth,
               ),
             ),
-            child: ListView.builder(
-              itemCount: docs.length,
-              itemBuilder: (context, index) {
-                final item = docs[index];
-                SizedBox(
-                  height: 8,
-                );
-                return Container(
-                  child: Column(
+            child: Column(
+              children: [
+                Container(
+                  height: 50,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      MainListWidget(item: item),
+                      Text(
+                        "@Pauek",
+                        style: TextStyle(color: Colors.white),
+                      ),
                       SizedBox(
-                        height: 8,
+                        width: 10,
+                      ),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(1000),
+                        child: Image.network(
+                            "https://i.pinimg.com/736x/dd/10/76/dd10762629df6655bfec19880490dda5.jpg"),
                       ),
                     ],
                   ),
-                );
-              },
+                ),
+                SizedBox(
+                  height: 16,
+                ),
+                Container(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Container(
+                        height: 25,
+                        width: 130,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(1000),
+                            color: Colors.white,
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text("PENDENTS"),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Container(
+                        height: 25,
+                        width: 130,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(1000),
+                            color: Colors.grey,
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text("VISTES"),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  height: 16,
+                ),
+                Container(
+                  height: MediaQuery.of(context).size.height - 139,
+                  child: ListView.builder(
+                    padding: EdgeInsets.all(0.0),
+                    shrinkWrap: true,
+                    itemCount: docs.length,
+                    itemBuilder: (context, index) {
+                      final item = docs[index];
+                      SizedBox(
+                        height: 8,
+                      );
+                      return Container(
+                        child: Column(
+                          children: [
+                            MainListWidget(item: item),
+                            SizedBox(
+                              height: 8,
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
           ),
         ],
