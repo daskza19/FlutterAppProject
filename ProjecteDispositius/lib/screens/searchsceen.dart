@@ -48,17 +48,48 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
         ),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            TextField(
-              controller: _controller,
-              onSubmitted: _devuelveResultado,
+            SizedBox(height: 32),
+            Text(
+              'Buscador',
+              style: TextStyle(
+                color: Colors.blue,
+                fontSize: 32,
+              ),
             ),
             SizedBox(height: 6),
-            Align(
-              alignment: Alignment.centerRight,
-              child: RaisedButton(
-                child: Text('Guardar'),
-                onPressed: _devuelveResultado,
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(500),
+              ),
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(20, 5, 20, 5),
+                child: TextField(
+                  decoration: InputDecoration(),
+                  style: TextStyle(
+                    color: Colors.grey,
+                  ),
+                  controller: _controller,
+                  onSubmitted: _devuelveResultado,
+                ),
+              ),
+            ),
+            SizedBox(height: 6),
+            Center(
+              child: Container(
+                width: 300,
+                child: RaisedButton(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(300)),
+                  color: Colors.blue,
+                  child: Text(
+                    'Cerca',
+                    style: TextStyle(color: Colors.white, fontSize: 18),
+                  ),
+                  onPressed: _devuelveResultado,
+                ),
               ),
             ),
           ],

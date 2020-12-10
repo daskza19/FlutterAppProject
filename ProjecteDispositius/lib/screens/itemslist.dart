@@ -69,7 +69,7 @@ class _TodoListPageState extends State<TodoListPage> {
                     children: [
                       Text(
                         "@Pauek",
-                        style: TextStyle(color: Colors.white),
+                        style: TextStyle(color: Colors.blue),
                       ),
                       SizedBox(
                         width: 10,
