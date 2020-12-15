@@ -12,8 +12,7 @@ class MainListWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
   final movies = FirebaseFirestore.instance.collection('ListToView');
-    return FlatButton(
-      onPressed: () {},
+    return GestureDetector(
       onLongPress: () {
          movies.doc(item.id).delete();
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(

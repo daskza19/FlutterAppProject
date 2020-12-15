@@ -45,7 +45,6 @@ class _TodoListPageState extends State<TodoListPage> {
   }
 
   Widget _buildTodoList(List<ItemMedia> docs) {
-    final todos = FirebaseFirestore.instance.collection('ListToView');
     return Scaffold(
       body: Column(
         children: [

@@ -1,13 +1,15 @@
-import 'package:ProjecteDispositius/item.dart';
-import 'package:ProjecteDispositius/screens/itemslist.dart';
 import 'package:flutter/material.dart';
+import 'package:omdb_dart/omdb_dart.dart';
+
+import '../item.dart';
 
 class SearchScreen extends StatefulWidget {
-  @override
   final ItemMedia item;
   SearchScreen({
     @required this.item,
   });
+
+  @override
   _SearchScreenState createState() => _SearchScreenState();
 }
 
@@ -73,6 +75,11 @@ class _SearchScreenState extends State<SearchScreen> {
                   ),
                   controller: _controller,
                   onSubmitted: _devuelveResultado,
+                  onChanged: (newString) {
+                    if (newString.isNotEmpty) {
+                      _moviesListSearch(newString);
+                    }
+                  },
                 ),
               ),
             ),
@@ -96,5 +103,11 @@ class _SearchScreenState extends State<SearchScreen> {
         ),
       ),
     );
+  }
+
+  void _moviesListSearch(String newString) async {
+    Omdb client = new Omdb('e707dd7', newString);
+    await client.getMovie();
+    
   }
 }
