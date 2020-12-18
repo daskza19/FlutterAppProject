@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:omdb_dart/omdb_dart.dart';
 
 import '../models/item.dart';
+import '../ombd.dart';
 import '../screens/searchsceen.dart';
 import '../widgets/mainListWidget.dart';
 
@@ -212,7 +212,7 @@ class _TodoListPageState extends State<TodoListPage> {
       if (item != null &&
           _checkIfMovieAlreadySelected(docs: docs, item: item)) {
         ItemMedia _tempItem = item;
-        getMovie(_tempItem.mediaName).then((value) {
+        getMovie(_tempItem.movieID).then((value) {
           if (value.valoration != null) {
             FirebaseFirestore.instance
                 .collection('ListToView')

@@ -32,7 +32,7 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   void _returnResult(String text) {
-    widget.item.mediaName = text;
+    widget.item.movieID = text;
     Navigator.of(context).pop(widget.item);
   }
 
@@ -157,7 +157,7 @@ class _SearchScreenState extends State<SearchScreen> {
   GestureDetector _buildSearchListWidget(ItemMedia item) {
     return GestureDetector(
       onTap: () {
-        _returnResult(item.mediaName);
+        _returnResult(item.movieID);
       },
       onLongPress: () {},
       child: Container(
