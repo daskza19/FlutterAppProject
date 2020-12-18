@@ -37,6 +37,16 @@ class _TodoListPageState extends State<TodoListPage> {
     );
   }
 
+  bool _checkIfMovieAlreadySelected(
+      {@required List<ItemMedia> docs, @required ItemMedia item}) {
+    for (ItemMedia movie in docs) {
+      if (movie.mediaName == item.mediaName) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   Widget _buildLoading() {
     return Scaffold(
       body: Center(
@@ -162,7 +172,7 @@ class _TodoListPageState extends State<TodoListPage> {
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
         onPressed: () async {
-          _nuevoItem();
+          _nuevoItem(docs);
         },
       ),
     );
@@ -188,7 +198,7 @@ class _TodoListPageState extends State<TodoListPage> {
     );
   }
 
-  void _nuevoItem() {
+  void _nuevoItem(List<ItemMedia> docs) {
     ItemMedia _tempItem = ItemMedia();
     Navigator.of(context)
         .push(
@@ -199,7 +209,8 @@ class _TodoListPageState extends State<TodoListPage> {
       ),
     )
         .then((item) {
-      if (item != null) {
+      if (item != null &&
+          _checkIfMovieAlreadySelected(docs: docs, item: item)) {
         ItemMedia _tempItem = item;
         getMovie(_tempItem.mediaName).then((value) {
           if (value.valoration != null) {
