@@ -1,9 +1,10 @@
-import 'package:ProjecteDispositius/screens/searchsceen.dart';
-import 'package:ProjecteDispositius/widgets/mainListWidget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:ProjecteDispositius/item.dart';
 import 'package:flutter/material.dart';
 import 'package:omdb_dart/omdb_dart.dart';
+
+import '../models/item.dart';
+import '../screens/searchsceen.dart';
+import '../widgets/mainListWidget.dart';
 
 class TodoListPage extends StatefulWidget {
   @override

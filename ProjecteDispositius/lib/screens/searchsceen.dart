@@ -1,7 +1,10 @@
-import 'package:flutter/material.dart';
-import 'package:omdb_dart/omdb_dart.dart';
+import 'dart:convert';
 
-import '../item.dart';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
+import '../models/item.dart';
+import '../models/movie_model.dart';
 
 class SearchScreen extends StatefulWidget {
   final ItemMedia item;
@@ -15,6 +18,7 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   TextEditingController _controller;
+  List<ItemMedia> _movies = [];
   @override
   void initState() {
     _controller = TextEditingController();
@@ -27,14 +31,34 @@ class _SearchScreenState extends State<SearchScreen> {
     super.dispose();
   }
 
-  void _devuelveResultado([String text]) {
-    // Le asigno el nuevo texto al Item que tenía
-    if (_controller.text.isNotEmpty) {
-      // Solo editamos si el TextField estaba lleno
-      widget.item.mediaName = _controller.text;
-      Navigator.of(context).pop(widget.item);
-    } else {
-      Navigator.of(context).pop();
+  void _returnResult(String text) {
+    widget.item.mediaName = text;
+    Navigator.of(context).pop(widget.item);
+  }
+
+  void _moviesListSearch(String movieName) async {
+    setState(() {
+      _movies.clear();
+    });
+    String myurl = "http://www.omdbapi.com/?s=$movieName&apikey=e707dd75";
+    var res = await http.get(myurl);
+    var decodedjson = jsonDecode(res.body);
+    if (decodedjson["Response"].toString() == "False") {
+      return;
+    }
+    int total=int.parse(decodedjson["totalResults"]);
+    if(total>5){
+      total=5;
+    }
+    for (int i = 0; i < total; i++) {
+      MovieModel _movieModel = MovieModel.fromJson(decodedjson, i);
+      ItemMedia _tempItemMedia = ItemMedia();
+      _tempItemMedia.mediaName = _movieModel.getTitle;
+      _tempItemMedia.year = _movieModel.getYear;
+      _tempItemMedia.posterURL = _movieModel.getPoster;
+      setState(() {
+        _movies.add(_tempItemMedia);
+      });
     }
   }
 
@@ -69,18 +93,16 @@ class _SearchScreenState extends State<SearchScreen> {
               child: Padding(
                 padding: EdgeInsets.fromLTRB(20, 5, 20, 5),
                 child: TextField(
-                  decoration: InputDecoration(),
-                  style: TextStyle(
-                    color: Colors.grey,
-                  ),
-                  controller: _controller,
-                  onSubmitted: _devuelveResultado,
-                  onChanged: (newString) {
-                    if (newString.isNotEmpty) {
-                      _moviesListSearch(newString);
-                    }
-                  },
-                ),
+                    decoration: InputDecoration(),
+                    style: TextStyle(
+                      color: Colors.grey,
+                    ),
+                    controller: _controller,
+                    onSubmitted: (movieName) {
+                      if (movieName.isNotEmpty) {
+                        _moviesListSearch(movieName);
+                      }
+                    }),
               ),
             ),
             SizedBox(height: 6),
@@ -95,8 +117,35 @@ class _SearchScreenState extends State<SearchScreen> {
                     'Cerca',
                     style: TextStyle(color: Colors.white, fontSize: 18),
                   ),
-                  onPressed: _devuelveResultado,
+                  onPressed: () {
+                    if (_controller.text.isNotEmpty) {
+                      _moviesListSearch(_controller.text);
+                    }
+                  },
                 ),
+              ),
+            ),
+            Expanded(
+              child: ListView.builder(
+                padding: EdgeInsets.all(0.0),
+                shrinkWrap: true,
+                itemCount: _movies.isEmpty ? 0 : _movies.length,
+                itemBuilder: (context, index) {
+                  final item = _movies[index];
+                  SizedBox(
+                    height: 8,
+                  );
+                  return Container(
+                    child: Column(
+                      children: [
+                        _buildSearchListWidget(item),
+                        SizedBox(
+                          height: 8,
+                        ),
+                      ],
+                    ),
+                  );
+                },
               ),
             ),
           ],
@@ -105,9 +154,57 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
-  void _moviesListSearch(String newString) async {
-    Omdb client = new Omdb('e707dd7', newString);
-    await client.getMovie();
-    
+  GestureDetector _buildSearchListWidget(ItemMedia item) {
+    return GestureDetector(
+      onTap: () {
+        _returnResult(item.mediaName);
+      },
+      onLongPress: () {},
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.black.withOpacity(0.6),
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+        ),
+        padding: EdgeInsets.all(8),
+        child: Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Image.network(
+                item.posterURL,
+                height: 100,
+              ),
+            ),
+            SizedBox(
+              width: 6,
+            ),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    item.mediaName,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                    ),
+                  ),
+                  Text(
+                    'Any: ' + item.year,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

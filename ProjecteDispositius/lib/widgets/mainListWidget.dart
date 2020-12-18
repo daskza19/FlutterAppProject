@@ -1,6 +1,7 @@
-import 'package:ProjecteDispositius/item.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+
+import '../models/item.dart';
 
 class MainListWidget extends StatelessWidget {
   final ItemMedia item;
