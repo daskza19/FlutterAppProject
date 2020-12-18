@@ -1,4 +1,4 @@
-# projecte_dispositius
+# ProjecteDispositius
 
 A new Flutter project.
 
