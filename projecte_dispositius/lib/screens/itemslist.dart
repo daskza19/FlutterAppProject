@@ -1,16 +1,17 @@
-import 'package:ProjecteDispositius/screens/searchsceen.dart';
-import 'package:ProjecteDispositius/widgets/mainListWidget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:ProjecteDispositius/item.dart';
 import 'package:flutter/material.dart';
 import 'package:omdb_dart/omdb_dart.dart';
 
-class TodoListPage extends StatefulWidget {
+import '../models/item.dart';
+import '../widgets/mainListWidget.dart';
+import 'searchsceen.dart';
+
+class ItemsListPage extends StatefulWidget {
   @override
-  _TodoListPageState createState() => _TodoListPageState();
+  _ItemsListPageState createState() => _ItemsListPageState();
 }
 
-class _TodoListPageState extends State<TodoListPage> {
+class _ItemsListPageState extends State<ItemsListPage> {
   TextEditingController _controller;
 
   @override
@@ -42,6 +43,16 @@ class _TodoListPageState extends State<TodoListPage> {
         child: CircularProgressIndicator(),
       ),
     );
+  }
+
+  bool _checkIfMovieAlreadySelected(
+      {@required List<ItemMedia> docs, @required ItemMedia item}) {
+    for (ItemMedia movie in docs) {
+      if (movie.mediaName == item.mediaName) {
+        return false;
+      }
+    }
+    return true;
   }
 
   Widget _buildTodoList(List<ItemMedia> docs) {
@@ -161,7 +172,7 @@ class _TodoListPageState extends State<TodoListPage> {
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
         onPressed: () async {
-          _nuevoItem();
+          _nuevoItem(docs);
         },
       ),
     );
@@ -187,7 +198,7 @@ class _TodoListPageState extends State<TodoListPage> {
     );
   }
 
-  void _nuevoItem() {
+  void _nuevoItem(List<ItemMedia> docs) {
     ItemMedia _tempItem = ItemMedia();
     Navigator.of(context)
         .push(
@@ -198,7 +209,8 @@ class _TodoListPageState extends State<TodoListPage> {
       ),
     )
         .then((item) {
-      if (item != null) {
+      if (item != null &&
+          _checkIfMovieAlreadySelected(docs: docs, item: item)) {
         ItemMedia _tempItem = item;
         getMovie(_tempItem.mediaName).then((value) {
           if (value.valoration != null) {
