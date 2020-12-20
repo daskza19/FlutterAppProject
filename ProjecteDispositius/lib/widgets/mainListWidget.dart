@@ -1,3 +1,4 @@
+import 'package:ProjecteDispositius/screens/properties_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
@@ -12,19 +13,30 @@ class MainListWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-  final movies = FirebaseFirestore.instance.collection('ListToView');
+    final movies = FirebaseFirestore.instance.collection('ListToView');
     return GestureDetector(
       onLongPress: () {
-         movies.doc(item.id).delete();
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content: Text('Item "${item.mediaName}" deleted'),
-                      action: SnackBarAction(
-                        label: 'UNDO',
-                        onPressed: () {
-                          movies.add(item.toFirestore());
-                        },
-                      ),
-                    ));
+        movies.doc(item.id).delete();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Item "${item.mediaName}" deleted'),
+            action: SnackBarAction(
+              label: 'UNDO',
+              onPressed: () {
+                movies.add(item.toFirestore());
+              },
+            ),
+          ),
+        );
+      },
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => PropertiesScreen(
+              item: item,
+            ),
+          ),
+        );
       },
       child: Container(
         decoration: BoxDecoration(

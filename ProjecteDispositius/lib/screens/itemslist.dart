@@ -1,3 +1,5 @@
+import 'package:ProjecteDispositius/models/user.dart';
+import 'package:ProjecteDispositius/screens/user_profile_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
@@ -56,6 +58,15 @@ class _TodoListPageState extends State<TodoListPage> {
   }
 
   Widget _buildTodoList(List<ItemMedia> docs) {
+    NormalUser actualUser = NormalUser();
+    actualUser.realName = 'Arnau Falgueras García de Atocha';
+    actualUser.email = 'arnau@gmail.com';
+    actualUser.estado = 'Estimo molt fortament al Josep cada dia sense parar.';
+    actualUser.nickName = 'Arnau77';
+    actualUser.imageURL =
+        'https://i.pinimg.com/736x/dd/10/76/dd10762629df6655bfec19880490dda5.jpg';
+    actualUser.listToView = docs;
+    actualUser.listViewed = docs;
     return Scaffold(
       body: Column(
         children: [
@@ -78,16 +89,23 @@ class _TodoListPageState extends State<TodoListPage> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
-                        "@Pauek",
+                        '@' + actualUser.nickName,
                         style: TextStyle(color: Colors.blue),
                       ),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(1000),
-                        child: Image.network(
-                            "https://i.pinimg.com/736x/dd/10/76/dd10762629df6655bfec19880490dda5.jpg"),
+                      FlatButton(
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => UserProfileScreen(
+                                actualUser: actualUser,
+                              ),
+                            ),
+                          );
+                        },
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(1000),
+                          child: Image.network(actualUser.imageURL),
+                        ),
                       ),
                     ],
                   ),
@@ -236,6 +254,7 @@ class _TodoListPageState extends State<TodoListPage> {
     _tempItemMedia.posterURL = client.movie.poster;
     _tempItemMedia.genres = client.movie.genre;
     _tempItemMedia.movieID = client.movie.imdbID;
+    _tempItemMedia.type = client.movie.type;
 
     return _tempItemMedia;
   }

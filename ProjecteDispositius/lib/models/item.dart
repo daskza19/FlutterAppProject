@@ -11,19 +11,20 @@ class ItemMedia {
   String director = "";
   String posterURL = "";
   String movieID = "";
+  String type = "";
 
-  ItemMedia([
-    this.id = "",
-    this.mediaName = "",
-    this.year = "",
-    this.duration = "",
-    this.genres = "",
-    this.valoration = "",
-    this.sinopsis = "",
-    this.director = "",
-    this.posterURL = "",
-    this.movieID = "",
-  ]);
+  ItemMedia(
+      [this.id = "",
+      this.mediaName = "",
+      this.year = "",
+      this.duration = "",
+      this.genres = "",
+      this.valoration = "",
+      this.sinopsis = "",
+      this.director = "",
+      this.posterURL = "",
+      this.movieID = "",
+      this.type = ""]);
 
   ItemMedia.fromFirestore(DocumentSnapshot doc) {
     this.id = doc.id;
@@ -36,6 +37,7 @@ class ItemMedia {
     this.director = doc['director'];
     this.posterURL = doc['posterURL'];
     this.movieID = doc['movieID'];
+    this.type = doc['type'];
   }
 
   Map<String, dynamic> toFirestore() => {
@@ -49,6 +51,7 @@ class ItemMedia {
         'director': director,
         'posterURL': posterURL,
         'movieID': movieID,
+        'type': type,
       };
 }
 
