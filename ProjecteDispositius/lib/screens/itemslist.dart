@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:ProjecteDispositius/models/user.dart';
 import 'package:ProjecteDispositius/screens/user_profile_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -15,10 +17,11 @@ class TodoListPage extends StatefulWidget {
 
 class _TodoListPageState extends State<TodoListPage> {
   TextEditingController _controller;
-
+  bool mostrarVistes = true;
   @override
   void initState() {
     _controller = TextEditingController();
+    mostrarVistes = true;
     super.initState();
   }
 
@@ -66,7 +69,7 @@ class _TodoListPageState extends State<TodoListPage> {
     actualUser.imageURL =
         'https://i.pinimg.com/736x/dd/10/76/dd10762629df6655bfec19880490dda5.jpg';
     actualUser.listToView = docs;
-    actualUser.listViewed = docs;
+    actualUser.listViewed = docs.sublist(4, actualUser.listToView.length);
     return Scaffold(
       body: Column(
         children: [
@@ -118,37 +121,51 @@ class _TodoListPageState extends State<TodoListPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Container(
-                        height: 25,
-                        width: 130,
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            mostrarVistes = false;
+                          });
+                        },
                         child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(1000),
-                            color: Colors.white,
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Text("PENDENTS"),
-                            ],
+                          height: 25,
+                          width: 130,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(1000),
+                              color: mostrarVistes ? Colors.grey : Colors.white,
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Text("PENDENTS"),
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                      Container(
-                        height: 25,
-                        width: 130,
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            mostrarVistes = true;
+                          });
+                        },
                         child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(1000),
-                            color: Colors.grey,
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Text("VISTES"),
-                            ],
+                          height: 25,
+                          width: 130,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(1000),
+                              color: mostrarVistes ? Colors.white : Colors.grey,
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Text("VISTES"),
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -163,9 +180,13 @@ class _TodoListPageState extends State<TodoListPage> {
                   child: ListView.builder(
                     padding: EdgeInsets.all(0.0),
                     shrinkWrap: true,
-                    itemCount: docs.length,
+                    itemCount: mostrarVistes
+                        ? actualUser.listViewed.length
+                        : actualUser.listToView.length,
                     itemBuilder: (context, index) {
-                      final item = docs[index];
+                      final item = mostrarVistes
+                          ? actualUser.listViewed[index]
+                          : actualUser.listToView[index];
                       SizedBox(
                         height: 8,
                       );
