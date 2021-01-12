@@ -11,6 +11,7 @@ class NormalUser {
   String imageURL = "";
   List<ItemMedia> listToView;
   List<ItemMedia> listViewed;
+  List<ItemMedia> listViewing;
 
   NormalUser([
     this.id = "",
@@ -22,6 +23,7 @@ class NormalUser {
     this.imageURL = "",
     this.listToView,
     this.listViewed,
+    this.listViewing,
   ]);
 
   NormalUser.fromFirestore(DocumentSnapshot doc) {
@@ -34,6 +36,7 @@ class NormalUser {
     this.imageURL = doc['imageURL'];
     this.listToView = doc['ListToView'];
     this.listViewed = doc['ListViewed'];
+    this.listViewing = doc['ListViewing'];
   }
 
   Map<String, dynamic> toFirestore() => {
@@ -46,6 +49,7 @@ class NormalUser {
         'imageURL': imageURL,
         'ListToView': listToView,
         'ListViewed': listViewed,
+        'ListViewing': listViewing,
       };
 }
 

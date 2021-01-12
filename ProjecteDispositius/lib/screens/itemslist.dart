@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:ProjecteDispositius/models/user.dart';
 import 'package:ProjecteDispositius/screens/user_profile_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -17,7 +15,8 @@ class TodoListPage extends StatefulWidget {
 
 class _TodoListPageState extends State<TodoListPage> {
   TextEditingController _controller;
-  bool mostrarVistes = true;
+  bool mostrarVistes = false;
+  bool mostrarMirant = false;
   @override
   void initState() {
     _controller = TextEditingController();
@@ -70,6 +69,8 @@ class _TodoListPageState extends State<TodoListPage> {
         'https://i.pinimg.com/736x/dd/10/76/dd10762629df6655bfec19880490dda5.jpg';
     actualUser.listToView = docs;
     actualUser.listViewed = docs.sublist(4, actualUser.listToView.length);
+    actualUser.listViewing=[];
+   
     return Scaffold(
       body: Column(
         children: [
@@ -85,124 +86,69 @@ class _TodoListPageState extends State<TodoListPage> {
             ),
             child: Column(
               children: [
+                _UserInfo(actualUser: actualUser),
+                SizedBox(
+                  height: 16,
+                ),
                 Container(
-                  height: 50,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        '@' + actualUser.nickName,
-                        style: TextStyle(color: Colors.blue),
-                      ),
-                      FlatButton(
-                        onPressed: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => UserProfileScreen(
-                                actualUser: actualUser,
-                              ),
-                            ),
-                          );
-                        },
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(1000),
-                          child: Image.network(actualUser.imageURL),
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              mostrarVistes = false;
+                              mostrarMirant = false;
+                            });
+                          },
+                          child: _Titles(
+                            isSelected:
+                                (mostrarVistes || mostrarMirant) ? false : true,
+                            text: "PENDENTS",
+                          ),
                         ),
-                      ),
-                    ],
+                        SizedBox(
+                          width: 10,
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              mostrarVistes = false;
+                              mostrarMirant = true;
+                            });
+                          },
+                          child: _Titles(
+                            isSelected: mostrarMirant,
+                            text: "MIRANT",
+                          ),
+                        ),
+                        SizedBox(
+                          width: 16,
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              mostrarVistes = true;
+                              mostrarMirant = false;
+                            });
+                          },
+                          child: _Titles(
+                            isSelected: mostrarVistes,
+                            text: "VISTES",
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 SizedBox(
                   height: 16,
                 ),
-                Container(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            mostrarVistes = false;
-                          });
-                        },
-                        child: Container(
-                          height: 25,
-                          width: 130,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(1000),
-                              color: mostrarVistes ? Colors.grey : Colors.white,
-                            ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Text("PENDENTS"),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            mostrarVistes = true;
-                          });
-                        },
-                        child: Container(
-                          height: 25,
-                          width: 130,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(1000),
-                              color: mostrarVistes ? Colors.white : Colors.grey,
-                            ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Text("VISTES"),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  height: 16,
-                ),
-                Container(
-                  height: MediaQuery.of(context).size.height - 139,
-                  child: ListView.builder(
-                    padding: EdgeInsets.all(0.0),
-                    shrinkWrap: true,
-                    itemCount: mostrarVistes
-                        ? actualUser.listViewed.length
-                        : actualUser.listToView.length,
-                    itemBuilder: (context, index) {
-                      final item = mostrarVistes
-                          ? actualUser.listViewed[index]
-                          : actualUser.listToView[index];
-                      SizedBox(
-                        height: 8,
-                      );
-                      return Container(
-                        child: Column(
-                          children: [
-                            MainListWidget(item: item),
-                            SizedBox(
-                              height: 8,
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                ),
+                _ListMovies(
+                    mostrarVistes: mostrarVistes, mostrarMirant: mostrarMirant, actualUser: actualUser),
               ],
             ),
           ),
@@ -278,5 +224,113 @@ class _TodoListPageState extends State<TodoListPage> {
     _tempItemMedia.type = client.movie.type;
 
     return _tempItemMedia;
+  }
+}
+
+class _Titles extends StatelessWidget {
+  final bool isSelected;
+  final String text;
+  _Titles({this.isSelected, this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 25,
+      width: 110,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(1000),
+          color: isSelected ? Colors.white : Colors.grey,
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(text),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ListMovies extends StatelessWidget {
+  final bool mostrarVistes;
+  final bool mostrarMirant;
+  final NormalUser actualUser;
+
+  _ListMovies({this.mostrarVistes, this.mostrarMirant, this.actualUser});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: MediaQuery.of(context).size.height - 139,
+      child: ListView.builder(
+        padding: EdgeInsets.all(0.0),
+        shrinkWrap: true,
+        itemCount: mostrarVistes
+            ? actualUser.listViewed.length
+            : mostrarMirant
+                ? actualUser.listViewing.length
+                : actualUser.listToView.length,
+        itemBuilder: (context, index) {
+          final item = mostrarVistes
+              ? actualUser.listViewed[index]
+              : mostrarMirant
+                ? actualUser.listViewing[index]
+                : actualUser.listToView[index];
+          SizedBox(
+            height: 8,
+          );
+          return Container(
+            child: Column(
+              children: [
+                MainListWidget(item: item),
+                SizedBox(
+                  height: 8,
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _UserInfo extends StatelessWidget {
+  final NormalUser actualUser;
+  _UserInfo({this.actualUser});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 50,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            '@' + actualUser.nickName,
+            style: TextStyle(color: Colors.blue),
+          ),
+          FlatButton(
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => UserProfileScreen(
+                    actualUser: actualUser,
+                  ),
+                ),
+              );
+            },
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(1000),
+              child: Image.network(actualUser.imageURL),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

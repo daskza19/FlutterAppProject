@@ -41,26 +41,34 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             fit: BoxFit.fitWidth,
           ),
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            FotoPerfilNomUsuariWidget(widget: widget),
-            SizedBox(height: 10),
-            EstatUsuariWidget(widget: widget),
-            SizedBox(height: 10),
-            VistesUsuariWidget(widget: widget),
-            SizedBox(height: 18),
-            LlistaPelisVistesUsuariWidget(
-              title: 'PEL·LÍCULAS/SERIES PENDENTS',
-              itemsmostrar: widget.actualUser.listToView,
-            ),
-            SizedBox(height: 10),
-            LlistaPelisVistesUsuariWidget(
-              title: 'PEL·LÍCULAS/SERIES VISTES',
-              itemsmostrar: widget.actualUser.listViewed,
-            ),
-          ],
+        child: SingleChildScrollView(
+          scrollDirection: Axis.vertical,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              FotoPerfilNomUsuariWidget(widget: widget),
+              SizedBox(height: 10),
+              EstatUsuariWidget(widget: widget),
+              SizedBox(height: 10),
+              VistesUsuariWidget(widget: widget),
+              SizedBox(height: 18),
+              LlistaPelisVistesUsuariWidget(
+                title: 'PEL·LÍCULAS/SERIES PENDENTS',
+                itemsmostrar: widget.actualUser.listToView,
+              ),
+              SizedBox(height: 10),
+              LlistaPelisVistesUsuariWidget(
+                title: 'PEL·LÍCULAS/SERIES MIRANT',
+                itemsmostrar: widget.actualUser.listViewing,
+              ),
+              SizedBox(height: 10),
+              LlistaPelisVistesUsuariWidget(
+                title: 'PEL·LÍCULAS/SERIES VISTES',
+                itemsmostrar: widget.actualUser.listViewed,
+              ),
+            ],
+          ),
         ),
       ),
     );
