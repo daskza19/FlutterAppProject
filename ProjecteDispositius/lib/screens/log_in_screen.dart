@@ -7,7 +7,8 @@ class LogInScreen extends StatefulWidget {
   NormalUser actualUser;
 
   LogInScreen({
-    @required this.actualUser,
+    // @required 
+    this.actualUser,
   });
   @override
   _LogInScreenState createState() => _LogInScreenState();

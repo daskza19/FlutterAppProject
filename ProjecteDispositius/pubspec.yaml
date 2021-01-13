@@ -11,10 +11,10 @@ dependencies:
     sdk: flutter
   cloud_firestore: ^0.14.3+1
   cupertino_icons: ^1.0.0
+  firebase_auth: ^0.18.3+1
+  http: ^0.12.0+2
   omdb_dart: ^0.0.2
   path_provider: ^1.6.22
-  http: ^0.12.0+2
-
 
 dev_dependencies:
   flutter_test:
@@ -25,8 +25,8 @@ flutter:
   assets:
     - assets/background.gif
   fonts:
-      - family: LemonMilk
-        fonts:
-          - asset: fonts/LEMONMILK-Light.otf
-          - asset: fonts/LEMONMILK-LightItalic.otf
-            style: italic
+    - family: LemonMilk
+      fonts:
+        - asset: fonts/LEMONMILK-Light.otf
+        - asset: fonts/LEMONMILK-LightItalic.otf
+          style: italic
