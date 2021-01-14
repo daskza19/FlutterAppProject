@@ -54,6 +54,7 @@ class _SearchScreenState extends State<SearchScreen> {
       MovieModel _movieModel = MovieModel.fromJson(decodedjson, i);
       ItemMedia _tempItemMedia = ItemMedia();
       _tempItemMedia.mediaName = _movieModel.getTitle;
+      _tempItemMedia.movieID=_movieModel.getID;
       _tempItemMedia.year = _movieModel.getYear;
       _tempItemMedia.posterURL = _movieModel.getPoster;
       setState(() {

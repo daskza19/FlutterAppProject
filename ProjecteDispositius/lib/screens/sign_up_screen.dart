@@ -5,9 +5,11 @@ import '../models/user.dart';
 // ignore: must_be_immutable
 class SignUpScreen extends StatefulWidget {
   NormalUser actualUser;
+  bool register;
 
   SignUpScreen({
     @required this.actualUser,
+    @required this.register,
   });
   @override
   _SignUpScreenState createState() => _SignUpScreenState();
@@ -58,7 +60,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'SIGN UP',
+                    widget.register ? 'SIGN UP' : "EDIT",
                     style: TextStyle(
                       color: Colors.blue,
                       fontSize: 32,
@@ -197,7 +199,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    'JA TENS COMPTE?',
+                    widget.register ? 'JA TENS COMPTE?' : '',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 10,
@@ -213,7 +215,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         decoration: BoxDecoration(color: Colors.grey[700]),
                         child: Center(
                           child: Text(
-                            'Entra',
+                            widget.register ? 'Entra' : 'Enrere',
                             style: TextStyle(color: Colors.white),
                           ),
                         ),

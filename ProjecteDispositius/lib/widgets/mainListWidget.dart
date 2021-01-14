@@ -6,24 +6,33 @@ import '../models/item.dart';
 
 class MainListWidget extends StatelessWidget {
   final ItemMedia item;
+  final String userID;
 
   const MainListWidget({
-    @required this.item,
+    @required this.item, @required this.userID
   });
 
   @override
   Widget build(BuildContext context) {
-    final movies = FirebaseFirestore.instance.collection('ListToView');
+    final movies = FirebaseFirestore.instance.collection('user').doc(userID).collection('ListMovies');
     return GestureDetector(
       onLongPress: () {
         movies.doc(item.id).delete();
+        switch(item.state){
+          case "0":
+          break;
+          case "1":
+          break;
+          case "2":
+          break;
+        }
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Item "${item.mediaName}" deleted'),
             action: SnackBarAction(
               label: 'UNDO',
               onPressed: () {
-                movies.add(item.toFirestore());
+                movies.add(item.toFirestore(item.state));
               },
             ),
           ),

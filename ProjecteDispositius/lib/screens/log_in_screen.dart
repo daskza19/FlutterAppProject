@@ -1,27 +1,24 @@
+import 'package:ProjecteDispositius/models/user.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import '../models/user.dart';
+import 'sign_up_screen.dart';
 
 // ignore: must_be_immutable
 class LogInScreen extends StatefulWidget {
-  NormalUser actualUser;
-
-  LogInScreen({
-    // @required 
-    this.actualUser,
-  });
   @override
   _LogInScreenState createState() => _LogInScreenState();
 }
 
 class _LogInScreenState extends State<LogInScreen> {
-  TextEditingController _controllerCorreu;
-  TextEditingController _controllerContrasenya;
+  TextEditingController _controllerCorreu, _controllerContrasenya;
+  NormalUser user;
 
   @override
   void initState() {
     _controllerCorreu = TextEditingController();
     _controllerContrasenya = TextEditingController();
+    user = NormalUser();
     super.initState();
   }
 
@@ -30,6 +27,63 @@ class _LogInScreenState extends State<LogInScreen> {
     _controllerCorreu.dispose();
     _controllerContrasenya.dispose();
     super.dispose();
+  }
+
+  void _showError(error) {
+    String message;
+    if (error is FirebaseAuthException) {
+      switch (error.code) {
+        case "wrong-password":
+        case "user-not-found":
+          message = "Wrong user/password combination";
+          break;
+        case "too-many-requests":
+          message = "Too many login attemps. Try again later";
+          break;
+        case "invalid-email":
+          message = "The email is invalid";
+          break;
+        case "weak-password":
+          message = "The password is too weak";
+          break;
+        case "email-already-in-use":
+          message = "The email is already being used";
+          break;
+        default:
+          message = "Firebase Auth Error: ${error.code}";
+          break;
+      }
+    } else {
+      message = "General Error: $error";
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+      ),
+    );
+  }
+
+  void _signInWithEmailWithPassword({String email, String password}) async {
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+    } catch (e) {
+      _showError(e);
+    }
+  }
+
+  void _createUser({NormalUser newUser}) async {
+    try {
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: newUser.email,
+        password: newUser.password,
+      );
+    } catch (e) {
+      _showError(e);
+    }
   }
 
   @override
@@ -84,7 +138,6 @@ class _LogInScreenState extends State<LogInScreen> {
                           height: 0.7,
                         ),
                         controller: _controllerCorreu,
-                        onSubmitted: (correuName) {},
                       ),
                     ),
                   ),
@@ -111,7 +164,6 @@ class _LogInScreenState extends State<LogInScreen> {
                           height: 0.7,
                         ),
                         controller: _controllerContrasenya,
-                        onSubmitted: (correuName) {},
                       ),
                     ),
                   ),
@@ -125,11 +177,16 @@ class _LogInScreenState extends State<LogInScreen> {
                       color: Colors.blue,
                       child: Center(
                         child: Text(
-                          'Cerca',
+                          'ENTRA',
                           style: TextStyle(color: Colors.white, fontSize: 18),
                         ),
                       ),
-                      onPressed: () {},
+                      onPressed: () {
+                        _signInWithEmailWithPassword(
+                          email: _controllerCorreu.text,
+                          password: _controllerContrasenya.text,
+                        );
+                      },
                     ),
                   ),
                 ],
@@ -162,7 +219,20 @@ class _LogInScreenState extends State<LogInScreen> {
                         ),
                       ),
                     ),
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.of(context)
+                          .push(
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              SignUpScreen(actualUser: user, register: true),
+                        ),
+                      )
+                          .then((result) {
+                        _createUser(
+                          newUser: result,
+                        );
+                      });
+                    },
                   ),
                 ],
               ),

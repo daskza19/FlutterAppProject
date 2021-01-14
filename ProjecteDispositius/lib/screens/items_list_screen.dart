@@ -5,22 +5,22 @@ import 'package:flutter/material.dart';
 
 import '../models/item.dart';
 import '../ombd.dart';
-import '../screens/searchsceen.dart';
 import '../widgets/mainListWidget.dart';
+import 'searchsceen.dart';
 
-class TodoListPage extends StatefulWidget {
+class ItemsListScreen extends StatefulWidget {
   @override
-  _TodoListPageState createState() => _TodoListPageState();
+  _ItemsListScreenState createState() => _ItemsListScreenState();
 }
 
-class _TodoListPageState extends State<TodoListPage> {
+class _ItemsListScreenState extends State<ItemsListScreen> {
   TextEditingController _controller;
   bool mostrarVistes = false;
   bool mostrarMirant = false;
+
   @override
   void initState() {
     _controller = TextEditingController();
-    mostrarVistes = true;
     super.initState();
   }
 
@@ -42,8 +42,18 @@ class _TodoListPageState extends State<TodoListPage> {
   }
 
   bool _checkIfMovieAlreadySelected(
-      {@required List<ItemMedia> docs, @required ItemMedia item}) {
-    for (ItemMedia movie in docs) {
+      {@required NormalUser user, @required ItemMedia item}) {
+    for (ItemMedia movie in user.listViewing) {
+      if (movie.mediaName == item.mediaName) {
+        return false;
+      }
+    }
+    for (ItemMedia movie in user.listViewed) {
+      if (movie.mediaName == item.mediaName) {
+        return false;
+      }
+    }
+    for (ItemMedia movie in user.listToView) {
       if (movie.mediaName == item.mediaName) {
         return false;
       }
@@ -59,18 +69,18 @@ class _TodoListPageState extends State<TodoListPage> {
     );
   }
 
-  Widget _buildTodoList(List<ItemMedia> docs) {
-    NormalUser actualUser = NormalUser();
-    actualUser.realName = 'Arnau Falgueras García de Atocha';
-    actualUser.email = 'arnau@gmail.com';
-    actualUser.estado = 'Estimo molt fortament al Josep cada dia sense parar.';
-    actualUser.nickName = 'Arnau77';
-    actualUser.imageURL =
-        'https://i.pinimg.com/736x/dd/10/76/dd10762629df6655bfec19880490dda5.jpg';
-    actualUser.listToView = docs;
-    actualUser.listViewed = docs.sublist(4, actualUser.listToView.length);
-    actualUser.listViewing=[];
-   
+  Widget _buildTodoList(NormalUser actualUser) {
+    // NormalUser actualUser = NormalUser();
+    // actualUser.realName = 'Arnau Falgueras García de Atocha';
+    // actualUser.email = 'arnau@gmail.com';
+    // actualUser.estado = 'Estimo molt fortament al Josep cada dia sense parar.';
+    // actualUser.nickName = 'Arnau77';
+    // actualUser.imageURL =
+    //     'https://i.pinimg.com/736x/dd/10/76/dd10762629df6655bfec19880490dda5.jpg';
+    // actualUser.listToView = docs;
+    // actualUser.listViewed = docs.sublist(4, actualUser.listToView.length);
+    // actualUser.listViewing = [];
+
     return Scaffold(
       body: Column(
         children: [
@@ -148,7 +158,9 @@ class _TodoListPageState extends State<TodoListPage> {
                   height: 16,
                 ),
                 _ListMovies(
-                    mostrarVistes: mostrarVistes, mostrarMirant: mostrarMirant, actualUser: actualUser),
+                    mostrarVistes: mostrarVistes,
+                    mostrarMirant: mostrarMirant,
+                    actualUser: actualUser),
               ],
             ),
           ),
@@ -157,7 +169,7 @@ class _TodoListPageState extends State<TodoListPage> {
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
         onPressed: () async {
-          _nuevoItem(docs);
+          _nuevoItem(actualUser);
         },
       ),
     );
@@ -166,8 +178,8 @@ class _TodoListPageState extends State<TodoListPage> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-      stream: todoListSnapshots(),
-      builder: (context, AsyncSnapshot<List<ItemMedia>> snapshot) {
+      stream: getUser(),
+      builder: (context, AsyncSnapshot<NormalUser> snapshot) {
         if (snapshot.hasError) {
           return _buildError(snapshot.error);
         }
@@ -175,7 +187,22 @@ class _TodoListPageState extends State<TodoListPage> {
           case ConnectionState.waiting:
             return _buildLoading();
           case ConnectionState.active:
-            return _buildTodoList(snapshot.data);
+            return StreamBuilder(
+              stream: fillList(snapshot.data),
+              builder: (context, AsyncSnapshot<List<ItemMedia>> snap) {
+                if (snapshot.hasError) {
+                  return _buildError(snapshot.error);
+                }
+                switch (snapshot.connectionState) {
+                  case ConnectionState.waiting:
+                    return _buildLoading();
+                  case ConnectionState.active:
+                    return _buildTodoList(snapshot.data);
+                  default: // ConnectionState.none || ConnectionState.done
+                    return _buildError("Unreachable (done or none)");
+                }
+              },
+            );
           default: // ConnectionState.none || ConnectionState.done
             return _buildError("Unreachable (done or none)");
         }
@@ -183,7 +210,7 @@ class _TodoListPageState extends State<TodoListPage> {
     );
   }
 
-  void _nuevoItem(List<ItemMedia> docs) {
+  void _nuevoItem(NormalUser user) {
     ItemMedia _tempItem = ItemMedia();
     Navigator.of(context)
         .push(
@@ -195,13 +222,19 @@ class _TodoListPageState extends State<TodoListPage> {
     )
         .then((item) {
       if (item != null &&
-          _checkIfMovieAlreadySelected(docs: docs, item: item)) {
+          _checkIfMovieAlreadySelected(user: user, item: item)) {
         ItemMedia _tempItem = item;
         getMovie(_tempItem.movieID).then((value) {
           if (value.valoration != null) {
             FirebaseFirestore.instance
-                .collection('ListToView')
-                .add(value.toFirestore());
+                .collection('user')
+                .doc(user.id)
+                .collection('ListMovies')
+                .add(value.toFirestore(mostrarVistes
+                    ? "2"
+                    : mostrarMirant
+                        ? "1"
+                        : "0")).then((newItem) => _tempItem.id=newItem.id);
           }
         });
       }
@@ -277,15 +310,15 @@ class _ListMovies extends StatelessWidget {
           final item = mostrarVistes
               ? actualUser.listViewed[index]
               : mostrarMirant
-                ? actualUser.listViewing[index]
-                : actualUser.listToView[index];
+                  ? actualUser.listViewing[index]
+                  : actualUser.listToView[index];
           SizedBox(
             height: 8,
           );
           return Container(
             child: Column(
               children: [
-                MainListWidget(item: item),
+                MainListWidget(item: item, userID: actualUser.id,),
                 SizedBox(
                   height: 8,
                 ),

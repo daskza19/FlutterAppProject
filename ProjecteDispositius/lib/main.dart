@@ -2,7 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
 import 'auth_state_switch.dart';
-import 'screens/itemslist.dart';
+import 'screens/items_list_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: "Movies' Organizator",
       theme: ThemeData(fontFamily: 'LemonMilk'),
-      home: TodoListPage(),
+      home: ItemsListScreen(),
     );
   }
 }
