@@ -1,4 +1,5 @@
 import 'package:ProjecteDispositius/models/user.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -76,13 +77,24 @@ class _LogInScreenState extends State<LogInScreen> {
   }
 
   void _createUser({NormalUser newUser}) async {
+    bool createUserWithoutErrors = true;
     try {
       await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: newUser.email,
         password: newUser.password,
       );
     } catch (e) {
+      createUserWithoutErrors = false;
       _showError(e);
+    }
+    if (createUserWithoutErrors) {
+      FirebaseFirestore.instance
+          .collection('user')
+          .add(newUser.toFirestore())
+          .then((value) {
+        newUser.id = value.id;
+        value.collection('ListMovies').add({'state': '-1'});
+      });
     }
   }
 
@@ -138,6 +150,7 @@ class _LogInScreenState extends State<LogInScreen> {
                           height: 0.7,
                         ),
                         controller: _controllerCorreu,
+                        keyboardType: TextInputType.emailAddress,
                       ),
                     ),
                   ),
@@ -163,6 +176,7 @@ class _LogInScreenState extends State<LogInScreen> {
                           color: Colors.grey,
                           height: 0.7,
                         ),
+                        obscureText: true,
                         controller: _controllerContrasenya,
                       ),
                     ),
@@ -228,9 +242,11 @@ class _LogInScreenState extends State<LogInScreen> {
                         ),
                       )
                           .then((result) {
-                        _createUser(
-                          newUser: result,
-                        );
+                        if (result != null) {
+                          _createUser(
+                            newUser: result,
+                          );
+                        }
                       });
                     },
                   ),

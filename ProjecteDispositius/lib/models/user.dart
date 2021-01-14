@@ -46,16 +46,12 @@ class NormalUser {
   }
 
   Map<String, dynamic> toFirestore() => {
-        'id': id,
         'realName': realName,
         'nickName': nickName,
         'email': email,
         'password': password,
         'estado': estado,
         'imageURL': imageURL,
-        'ListToView': listToView,
-        'ListViewed': listViewed,
-        'ListViewing': listViewing,
       };
 }
 

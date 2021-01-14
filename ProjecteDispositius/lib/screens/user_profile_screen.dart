@@ -1,6 +1,10 @@
 import 'package:ProjecteDispositius/models/item.dart';
 import 'package:ProjecteDispositius/models/user.dart';
+import 'package:ProjecteDispositius/screens/sign_up_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+
+import 'properties_screen.dart';
 
 // ignore: must_be_immutable
 class UserProfileScreen extends StatefulWidget {
@@ -47,6 +51,43 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              //BackAndEditButtons()
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  BackButton(color: Colors.blue),
+                  IconButton(
+                    color: Colors.blue,
+                    icon: Icon(Icons.edit),
+                    onPressed: () {
+                      Navigator.of(context)
+                          .push(
+                        MaterialPageRoute(
+                          builder: (_) => SignUpScreen(
+                              actualUser: widget.actualUser, register: false),
+                        ),
+                      )
+                          .then((user) {
+                        if (user != null) {
+                          FirebaseFirestore.instance
+                              .collection('user')
+                              .doc(widget.actualUser.id)
+                              .set({
+                            'estado': widget.actualUser.estado,
+                            'realName': widget.actualUser.realName,
+                            'nickName': widget.actualUser.nickName,
+                            'password': widget.actualUser.password,
+                            'email': widget.actualUser.email,
+                            'imageURL': widget.actualUser.imageURL
+                          });
+                        }
+                      });
+                    },
+                  )
+                ],
+              ),
               FotoPerfilNomUsuariWidget(widget: widget),
               SizedBox(height: 10),
               EstatUsuariWidget(widget: widget),
@@ -94,20 +135,17 @@ class LlistaPelisVistesUsuariWidget extends StatelessWidget {
           height: 145,
           child: Column(
             children: [
-              GestureDetector(
-                onTap: () {},
-                child: Container(
-                  width: 250,
-                  height: 22,
-                  decoration: BoxDecoration(
-                    color: Colors.grey,
-                    borderRadius: BorderRadius.circular(28),
-                  ),
-                  child: Center(
-                    child: Text(
-                      title,
-                      style: TextStyle(color: Colors.white),
-                    ),
+              Container(
+                width: 250,
+                height: 22,
+                decoration: BoxDecoration(
+                  color: Colors.grey,
+                  borderRadius: BorderRadius.circular(28),
+                ),
+                child: Center(
+                  child: Text(
+                    title,
+                    style: TextStyle(color: Colors.white),
                   ),
                 ),
               ),
@@ -123,15 +161,26 @@ class LlistaPelisVistesUsuariWidget extends StatelessWidget {
                     return Container(
                       child: Row(
                         children: [
-                          Container(
-                            height: 110,
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(10),
-                              child: Image.network(
-                                itemsmostrar[index].posterURL,
-                                height: 220,
+                          GestureDetector(
+                            child: Container(
+                              height: 110,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: Image.network(
+                                  itemsmostrar[index].posterURL,
+                                  height: 220,
+                                ),
                               ),
                             ),
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => PropertiesScreen(
+                                    item: itemsmostrar[index],
+                                  ),
+                                ),
+                              );
+                            },
                           ),
                           SizedBox(
                             width: 8,
