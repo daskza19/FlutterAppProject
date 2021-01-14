@@ -47,8 +47,8 @@ class _SearchScreenState extends State<SearchScreen> {
       return;
     }
     int total=int.parse(decodedjson["totalResults"]);
-    if(total>5){
-      total=5;
+    if(total>10){
+      total=10;
     }
     for (int i = 0; i < total; i++) {
       MovieModel _movieModel = MovieModel.fromJson(decodedjson, i);

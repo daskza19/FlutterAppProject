@@ -91,6 +91,10 @@ Stream<List<ItemMedia>> fillList(NormalUser user) {
       .orderBy('state', descending: true)
       .snapshots()
       .map((QuerySnapshot query) {
+    user.listToView.clear();
+    user.listViewing.clear();
+    user.listViewed.clear();
+
     for (var doc in query.docs) {
       switch (doc['state']) {
         case "0":
@@ -103,7 +107,6 @@ Stream<List<ItemMedia>> fillList(NormalUser user) {
           user.listViewed.add(ItemMedia.fromFirestore(doc));
 
           break;
-        
       }
       fullList.add(ItemMedia.fromFirestore(doc));
     }

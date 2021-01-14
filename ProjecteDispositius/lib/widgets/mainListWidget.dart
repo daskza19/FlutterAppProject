@@ -18,14 +18,6 @@ class MainListWidget extends StatelessWidget {
     return GestureDetector(
       onLongPress: () {
         movies.doc(item.id).delete();
-        switch(item.state){
-          case "0":
-          break;
-          case "1":
-          break;
-          case "2":
-          break;
-        }
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Item "${item.mediaName}" deleted'),

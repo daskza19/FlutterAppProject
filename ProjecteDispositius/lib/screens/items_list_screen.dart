@@ -82,89 +82,93 @@ class _ItemsListScreenState extends State<ItemsListScreen> {
     // actualUser.listViewing = [];
 
     return Scaffold(
-      body: Column(
-        children: [
-          Container(
-            height: MediaQuery.of(context).size.height,
-            width: MediaQuery.of(context).size.width,
-            padding: EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage("assets/background.gif"),
-                fit: BoxFit.fitWidth,
-              ),
-            ),
-            child: Column(
-              children: [
-                _UserInfo(actualUser: actualUser),
-                SizedBox(
-                  height: 16,
+      body: SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child: Column(
+          children: [
+            Container(
+              height: MediaQuery.of(context).size.height,
+              width: MediaQuery.of(context).size.width,
+              padding: EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage("assets/background.gif"),
+                  fit: BoxFit.fitWidth,
                 ),
-                Container(
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              mostrarVistes = false;
-                              mostrarMirant = false;
-                            });
-                          },
-                          child: _Titles(
-                            isSelected:
-                                (mostrarVistes || mostrarMirant) ? false : true,
-                            text: "PENDENTS",
+              ),
+              child: Column(
+                children: [
+                  _UserInfo(actualUser: actualUser),
+                  SizedBox(
+                    height: 16,
+                  ),
+                  Container(
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                mostrarVistes = false;
+                                mostrarMirant = false;
+                              });
+                            },
+                            child: _Titles(
+                              isSelected: (mostrarVistes || mostrarMirant)
+                                  ? false
+                                  : true,
+                              text: "PENDENTS",
+                            ),
                           ),
-                        ),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              mostrarVistes = false;
-                              mostrarMirant = true;
-                            });
-                          },
-                          child: _Titles(
-                            isSelected: mostrarMirant,
-                            text: "MIRANT",
+                          SizedBox(
+                            width: 10,
                           ),
-                        ),
-                        SizedBox(
-                          width: 16,
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              mostrarVistes = true;
-                              mostrarMirant = false;
-                            });
-                          },
-                          child: _Titles(
-                            isSelected: mostrarVistes,
-                            text: "VISTES",
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                mostrarVistes = false;
+                                mostrarMirant = true;
+                              });
+                            },
+                            child: _Titles(
+                              isSelected: mostrarMirant,
+                              text: "MIRANT",
+                            ),
                           ),
-                        ),
-                      ],
+                          SizedBox(
+                            width: 16,
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                mostrarVistes = true;
+                                mostrarMirant = false;
+                              });
+                            },
+                            child: _Titles(
+                              isSelected: mostrarVistes,
+                              text: "VISTES",
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                SizedBox(
-                  height: 16,
-                ),
-                _ListMovies(
-                    mostrarVistes: mostrarVistes,
-                    mostrarMirant: mostrarMirant,
-                    actualUser: actualUser),
-              ],
+                  SizedBox(
+                    height: 16,
+                  ),
+                  _ListMovies(
+                      mostrarVistes: mostrarVistes,
+                      mostrarMirant: mostrarMirant,
+                      actualUser: actualUser),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
@@ -234,7 +238,8 @@ class _ItemsListScreenState extends State<ItemsListScreen> {
                     ? "2"
                     : mostrarMirant
                         ? "1"
-                        : "0")).then((newItem) => _tempItem.id=newItem.id);
+                        : "0"))
+                .then((newItem) => _tempItem.id = newItem.id);
           }
         });
       }
@@ -318,7 +323,7 @@ class _ListMovies extends StatelessWidget {
           return Container(
             child: Column(
               children: [
-                MainListWidget(item: item, userID: actualUser.id,),
+                MainListWidget(item: item, userID: actualUser.id),
                 SizedBox(
                   height: 8,
                 ),
