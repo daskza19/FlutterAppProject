@@ -1,10 +1,9 @@
 import 'package:ProjecteDispositius/models/user.dart';
 import 'package:ProjecteDispositius/screens/user_profile_screen.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../models/item.dart';
-import '../ombd.dart';
 import '../widgets/mainListWidget.dart';
 import 'searchsceen.dart';
 
@@ -39,26 +38,6 @@ class _ItemsListScreenState extends State<ItemsListScreen> {
         ),
       ),
     );
-  }
-
-  bool _checkIfMovieAlreadySelected(
-      {@required NormalUser user, @required ItemMedia item}) {
-    for (ItemMedia movie in user.listViewing) {
-      if (movie.mediaName == item.mediaName) {
-        return false;
-      }
-    }
-    for (ItemMedia movie in user.listViewed) {
-      if (movie.mediaName == item.mediaName) {
-        return false;
-      }
-    }
-    for (ItemMedia movie in user.listToView) {
-      if (movie.mediaName == item.mediaName) {
-        return false;
-      }
-    }
-    return true;
   }
 
   Widget _buildLoading() {
@@ -96,85 +75,109 @@ class _ItemsListScreenState extends State<ItemsListScreen> {
                   fit: BoxFit.fitWidth,
                 ),
               ),
-              child: Column(
-                children: [
-                  _UserInfo(actualUser: actualUser),
-                  SizedBox(
-                    height: 16,
-                  ),
-                  Container(
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                mostrarVistes = false;
-                                mostrarMirant = false;
-                              });
-                            },
-                            child: _Titles(
-                              isSelected: (mostrarVistes || mostrarMirant)
-                                  ? false
-                                  : true,
-                              text: "PENDENTS",
+              child: SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: Column(
+                  children: [
+                    _UserInfo(actualUser: actualUser),
+                    SizedBox(
+                      height: 16,
+                    ),
+                    Container(
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  mostrarVistes = false;
+                                  mostrarMirant = false;
+                                });
+                              },
+                              child: _Titles(
+                                isSelected: (mostrarVistes || mostrarMirant)
+                                    ? false
+                                    : true,
+                                text: "PENDENTS",
+                              ),
                             ),
-                          ),
-                          SizedBox(
-                            width: 10,
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                mostrarVistes = false;
-                                mostrarMirant = true;
-                              });
-                            },
-                            child: _Titles(
-                              isSelected: mostrarMirant,
-                              text: "MIRANT",
+                            SizedBox(
+                              width: 10,
                             ),
-                          ),
-                          SizedBox(
-                            width: 16,
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                mostrarVistes = true;
-                                mostrarMirant = false;
-                              });
-                            },
-                            child: _Titles(
-                              isSelected: mostrarVistes,
-                              text: "VISTES",
+                            GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  mostrarVistes = false;
+                                  mostrarMirant = true;
+                                });
+                              },
+                              child: _Titles(
+                                isSelected: mostrarMirant,
+                                text: "MIRANT",
+                              ),
                             ),
-                          ),
-                        ],
+                            SizedBox(
+                              width: 16,
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  mostrarVistes = true;
+                                  mostrarMirant = false;
+                                });
+                              },
+                              child: _Titles(
+                                isSelected: mostrarVistes,
+                                text: "VISTES",
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                  SizedBox(
-                    height: 16,
-                  ),
-                  _ListMovies(
-                      mostrarVistes: mostrarVistes,
-                      mostrarMirant: mostrarMirant,
-                      actualUser: actualUser),
-                ],
+                    SizedBox(
+                      height: 16,
+                    ),
+                    _ListMovies(
+                        mostrarVistes: mostrarVistes,
+                        mostrarMirant: mostrarMirant,
+                        actualUser: actualUser),
+                  ],
+                ),
               ),
             ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
-        onPressed: () async {
-          _nuevoItem(actualUser);
-        },
+      floatingActionButton: Row(
+        children: [
+          SizedBox(width: 35),
+          FloatingActionButton(
+            heroTag: 'searchUser',
+            child: Icon(Icons.person_search),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => SearchScreen(
+                    actualUser: actualUser,
+                    state: -1,
+                  ),
+                ),
+              );
+            },
+          ),
+          Spacer(),
+          FloatingActionButton(
+            heroTag: 'searchMovie',
+            child: Icon(Icons.add),
+            onPressed: () async {
+              _nuevoItem(actualUser);
+            },
+          ),
+        ],
       ),
     );
   }
@@ -215,53 +218,18 @@ class _ItemsListScreenState extends State<ItemsListScreen> {
   }
 
   void _nuevoItem(NormalUser user) {
-    ItemMedia _tempItem = ItemMedia();
-    Navigator.of(context)
-        .push(
+    Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => SearchScreen(
-          item: _tempItem,
+          actualUser: user,
+          state: mostrarMirant
+              ? 1
+              : mostrarVistes
+                  ? 2
+                  : 0,
         ),
       ),
-    )
-        .then((item) {
-      if (item != null &&
-          _checkIfMovieAlreadySelected(user: user, item: item)) {
-        ItemMedia _tempItem = item;
-        getMovie(_tempItem.movieID).then((value) {
-          if (value.valoration != null) {
-            FirebaseFirestore.instance
-                .collection('user')
-                .doc(user.id)
-                .collection('ListMovies')
-                .add(value.toFirestore(mostrarVistes
-                    ? "2"
-                    : mostrarMirant
-                        ? "1"
-                        : "0"))
-                .then((newItem) => _tempItem.id = newItem.id);
-          }
-        });
-      }
-    });
-  }
-
-  Future<ItemMedia> getMovie(String _name) async {
-    Omdb client = new Omdb('e707dd75', _name);
-    await client.getMovie();
-    ItemMedia _tempItemMedia = ItemMedia();
-    _tempItemMedia.mediaName = client.movie.title;
-    _tempItemMedia.director = client.movie.director;
-    _tempItemMedia.duration = client.movie.runtime;
-    _tempItemMedia.year = client.movie.released;
-    _tempItemMedia.sinopsis = client.movie.plot;
-    _tempItemMedia.valoration = client.movie.imdbRating;
-    _tempItemMedia.posterURL = client.movie.poster;
-    _tempItemMedia.genres = client.movie.genre;
-    _tempItemMedia.movieID = client.movie.imdbID;
-    _tempItemMedia.type = client.movie.type;
-
-    return _tempItemMedia;
+    );
   }
 }
 
@@ -323,7 +291,7 @@ class _ListMovies extends StatelessWidget {
           return Container(
             child: Column(
               children: [
-                MainListWidget(item: item, userID: actualUser.id),
+                MainListWidget(item: item, user: actualUser, mostrarMirant: mostrarMirant, mostrarVistes: mostrarVistes),
                 SizedBox(
                   height: 8,
                 ),
@@ -348,6 +316,24 @@ class _UserInfo extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.end,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          Container(
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(100), color: Colors.blue),
+            child: FlatButton(
+              child: Text(
+                "Tancar sessió",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 10,
+                ),
+              ),
+              //color: Colors.blue,
+              onPressed: () {
+                FirebaseAuth.instance.signOut();
+              },
+            ),
+          ),
+          Spacer(),
           Text(
             '@' + actualUser.nickName,
             style: TextStyle(color: Colors.blue),
@@ -358,6 +344,7 @@ class _UserInfo extends StatelessWidget {
                 MaterialPageRoute(
                   builder: (_) => UserProfileScreen(
                     actualUser: actualUser,
+                    
                   ),
                 ),
               );

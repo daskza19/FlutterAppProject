@@ -1,5 +1,9 @@
 import 'dart:convert';
 
+import 'package:ProjecteDispositius/models/user.dart';
+import 'package:ProjecteDispositius/screens/properties_screen.dart';
+import 'package:ProjecteDispositius/screens/user_profile_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -7,11 +11,9 @@ import '../models/item.dart';
 import '../models/movie_model.dart';
 
 class SearchScreen extends StatefulWidget {
-  final ItemMedia item;
-  SearchScreen({
-    @required this.item,
-  });
-
+  final NormalUser actualUser;
+  final int state;
+  SearchScreen({@required this.actualUser, @required this.state});
   @override
   _SearchScreenState createState() => _SearchScreenState();
 }
@@ -19,6 +21,8 @@ class SearchScreen extends StatefulWidget {
 class _SearchScreenState extends State<SearchScreen> {
   TextEditingController _controller;
   List<ItemMedia> _movies = [];
+
+  final ItemMedia item = ItemMedia();
   @override
   void initState() {
     _controller = TextEditingController();
@@ -32,8 +36,8 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   void _returnResult(String text) {
-    widget.item.movieID = text;
-    Navigator.of(context).pop(widget.item);
+    item.movieID = text;
+    Navigator.of(context).pop(item);
   }
 
   void _moviesListSearch(String movieName) async {
@@ -46,20 +50,51 @@ class _SearchScreenState extends State<SearchScreen> {
     if (decodedjson["Response"].toString() == "False") {
       return;
     }
-    int total=int.parse(decodedjson["totalResults"]);
-    if(total>10){
-      total=10;
+    int total = int.parse(decodedjson["totalResults"]);
+    if (total > 10) {
+      total = 10;
     }
     for (int i = 0; i < total; i++) {
       MovieModel _movieModel = MovieModel.fromJson(decodedjson, i);
       ItemMedia _tempItemMedia = ItemMedia();
       _tempItemMedia.mediaName = _movieModel.getTitle;
-      _tempItemMedia.movieID=_movieModel.getID;
+      _tempItemMedia.movieID = _movieModel.getID;
       _tempItemMedia.year = _movieModel.getYear;
       _tempItemMedia.posterURL = _movieModel.getPoster;
       setState(() {
         _movies.add(_tempItemMedia);
       });
+    }
+  }
+
+  void _searchUser(String userName) async {
+    var user = await FirebaseFirestore.instance
+        .collection('user')
+        .where('nickName', isEqualTo: userName)
+        .snapshots()
+        .first;
+    if (user.size > 0) {
+      NormalUser otherUser = NormalUser.fromFirestore(user.docs[0]);
+      var query = await FirebaseFirestore.instance
+          .collection('user')
+          .doc(otherUser.id)
+          .collection('ListMovies')
+          .get();
+      fillListWithQuery(otherUser, query);
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => UserProfileScreen(
+              actualUser: otherUser, backUpUser: widget.actualUser),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Aquest nom d'usuari no existeix"),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
     }
   }
 
@@ -101,7 +136,11 @@ class _SearchScreenState extends State<SearchScreen> {
                     controller: _controller,
                     onSubmitted: (movieName) {
                       if (movieName.isNotEmpty) {
-                        _moviesListSearch(movieName);
+                        if (widget.state != -1) {
+                          _moviesListSearch(movieName);
+                        } else {
+                          _searchUser(movieName);
+                        }
                       }
                     }),
               ),
@@ -120,7 +159,11 @@ class _SearchScreenState extends State<SearchScreen> {
                   ),
                   onPressed: () {
                     if (_controller.text.isNotEmpty) {
-                      _moviesListSearch(_controller.text);
+                      if (widget.state != -1) {
+                        _moviesListSearch(_controller.text);
+                      } else {
+                        _searchUser(_controller.text);
+                      }
                     }
                   },
                 ),
@@ -139,7 +182,13 @@ class _SearchScreenState extends State<SearchScreen> {
                   return Container(
                     child: Column(
                       children: [
-                        _buildSearchListWidget(item),
+                        GestureDetector(
+                          onTap: () {
+                            _getMovie(item, widget.actualUser, widget.state);
+                          },
+                          onLongPress: () {},
+                          child: SingleMovieWidget(item: item),
+                        ),
                         SizedBox(
                           height: 8,
                         ),
@@ -155,56 +204,74 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
-  GestureDetector _buildSearchListWidget(ItemMedia item) {
-    return GestureDetector(
-      onTap: () {
-        _returnResult(item.movieID);
-      },
-      onLongPress: () {},
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.6),
-          borderRadius: BorderRadius.all(Radius.circular(10)),
-        ),
-        padding: EdgeInsets.all(8),
-        child: Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: Image.network(
-                item.posterURL,
-                height: 100,
-              ),
+  void _getMovie(ItemMedia item, NormalUser user, int state) async {
+    item = await getMovie(item.movieID);
+    Navigator.of(context)
+        .push(
+          MaterialPageRoute(
+            builder: (_) => PropertiesScreen(
+                item: item, user: user, state: state, searched: true),
+          ),
+        )
+        .then((value) => _returnResult(item.movieID));
+  }
+}
+
+class SingleMovieWidget extends StatelessWidget {
+  const SingleMovieWidget({
+    Key key,
+    @required this.item,
+  }) : super(key: key);
+
+  final ItemMedia item;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.black.withOpacity(0.6),
+        borderRadius:
+            BorderRadius.all(Radius.circular(10)),
+      ),
+      padding: EdgeInsets.all(8),
+      child: Row(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: Image.network(
+              item.posterURL,
+              height: 100,
             ),
-            SizedBox(
-              width: 6,
-            ),
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.mediaName,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                    ),
+          ),
+          SizedBox(
+            width: 6,
+          ),
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
+              children: [
+                Text(
+                  item.mediaName,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
                   ),
-                  Text(
-                    'Any: ' + item.year,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 10,
-                    ),
+                ),
+                Text(
+                  'Any: ' + item.year,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

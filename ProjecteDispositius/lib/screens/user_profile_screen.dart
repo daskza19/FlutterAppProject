@@ -9,10 +9,8 @@ import 'properties_screen.dart';
 // ignore: must_be_immutable
 class UserProfileScreen extends StatefulWidget {
   NormalUser actualUser;
-
-  UserProfileScreen({
-    @required this.actualUser,
-  });
+  NormalUser backUpUser;
+  UserProfileScreen({@required this.actualUser, this.backUpUser});
   @override
   _UserProfileScreenState createState() => _UserProfileScreenState();
 }
@@ -51,41 +49,43 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              //BackAndEditButtons()
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.max,
                 children: [
                   BackButton(color: Colors.blue),
-                  IconButton(
-                    color: Colors.blue,
-                    icon: Icon(Icons.edit),
-                    onPressed: () {
-                      Navigator.of(context)
-                          .push(
-                        MaterialPageRoute(
-                          builder: (_) => SignUpScreen(
-                              actualUser: widget.actualUser, register: false),
-                        ),
-                      )
-                          .then((user) {
-                        if (user != null) {
-                          FirebaseFirestore.instance
-                              .collection('user')
-                              .doc(widget.actualUser.id)
-                              .set({
-                            'estado': widget.actualUser.estado,
-                            'realName': widget.actualUser.realName,
-                            'nickName': widget.actualUser.nickName,
-                            'password': widget.actualUser.password,
-                            'email': widget.actualUser.email,
-                            'imageURL': widget.actualUser.imageURL
-                          });
-                        }
-                      });
-                    },
-                  )
+                  widget.backUpUser == null
+                      ? IconButton(
+                          color: Colors.blue,
+                          icon: Icon(Icons.edit),
+                          onPressed: () {
+                            Navigator.of(context)
+                                .push(
+                              MaterialPageRoute(
+                                builder: (_) => SignUpScreen(
+                                    actualUser: widget.actualUser,
+                                    register: false),
+                              ),
+                            )
+                                .then((user) {
+                              if (user != null) {
+                                FirebaseFirestore.instance
+                                    .collection('user')
+                                    .doc(widget.actualUser.id)
+                                    .set({
+                                  'estado': widget.actualUser.estado,
+                                  'realName': widget.actualUser.realName,
+                                  'nickName': widget.actualUser.nickName,
+                                  'password': widget.actualUser.password,
+                                  'email': widget.actualUser.email,
+                                  'imageURL': widget.actualUser.imageURL
+                                });
+                              }
+                            });
+                          },
+                        )
+                      : Spacer()
                 ],
               ),
               FotoPerfilNomUsuariWidget(widget: widget),
@@ -97,16 +97,25 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               LlistaPelisVistesUsuariWidget(
                 title: 'PEL·LÍCULAS/SERIES PENDENTS',
                 itemsmostrar: widget.actualUser.listToView,
+                user: widget.backUpUser == null
+                    ? widget.actualUser
+                    : widget.backUpUser,
               ),
               SizedBox(height: 10),
               LlistaPelisVistesUsuariWidget(
                 title: 'PEL·LÍCULAS/SERIES MIRANT',
                 itemsmostrar: widget.actualUser.listViewing,
+                user: widget.backUpUser == null
+                    ? widget.actualUser
+                    : widget.backUpUser,
               ),
               SizedBox(height: 10),
               LlistaPelisVistesUsuariWidget(
                 title: 'PEL·LÍCULAS/SERIES VISTES',
                 itemsmostrar: widget.actualUser.listViewed,
+                user: widget.backUpUser == null
+                    ? widget.actualUser
+                    : widget.backUpUser,
               ),
             ],
           ),
@@ -117,14 +126,12 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 }
 
 class LlistaPelisVistesUsuariWidget extends StatelessWidget {
-  const LlistaPelisVistesUsuariWidget({
-    Key key,
-    @required this.title,
-    @required this.itemsmostrar,
-  }) : super(key: key);
-
   final List<ItemMedia> itemsmostrar;
   final String title;
+  final NormalUser user;
+
+  LlistaPelisVistesUsuariWidget(
+      {@required this.itemsmostrar, @required this.title, @required this.user});
 
   @override
   Widget build(BuildContext context) {
@@ -177,6 +184,9 @@ class LlistaPelisVistesUsuariWidget extends StatelessWidget {
                                 MaterialPageRoute(
                                   builder: (_) => PropertiesScreen(
                                     item: itemsmostrar[index],
+                                    user: this.user,
+                                    searched: false,
+                                    state: -1,
                                   ),
                                 ),
                               );

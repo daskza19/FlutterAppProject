@@ -12,11 +12,15 @@ class Omdb {
   Omdb(this._api, this._movieName);
 
 
-  Future<void> getMovie() async {
+  Future<String> getMovie() async {
     String myurl = "$baseUrl$_movieName&apikey=$_api";
     var res = await http.get(myurl);
     var decodedjson = jsonDecode(res.body);
     movie= Movie.fromJson(decodedjson);
+    if(movie.type=='series'){
+      return decodedjson['totalSeasons'];
+    }
+    return "";
   }
 
 }

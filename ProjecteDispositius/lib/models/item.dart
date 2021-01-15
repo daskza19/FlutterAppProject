@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../ombd.dart';
+
 class ItemMedia {
   String id = "";
   String mediaName = "";
@@ -12,6 +14,7 @@ class ItemMedia {
   String posterURL = "";
   String movieID = "";
   String type = "";
+  String totalSeasons = "";
   String state = "-1";
 
   ItemMedia(
@@ -26,6 +29,7 @@ class ItemMedia {
       this.posterURL = "",
       this.movieID = "",
       this.type = "",
+      this.totalSeasons = "",
       this.state = "-1"]);
 
   ItemMedia.fromFirestore(DocumentSnapshot doc) {
@@ -40,6 +44,7 @@ class ItemMedia {
     this.posterURL = doc['posterURL'];
     this.movieID = doc['movieID'];
     this.type = doc['type'];
+    this.totalSeasons = doc['totalSeasons'];
     this.state = doc['state'];
   }
 
@@ -56,9 +61,8 @@ class ItemMedia {
         'movieID': movieID,
         'type': type,
         'state': stateMovie,
+        'totalSeasons': totalSeasons,
       };
-
-
 }
 
 Stream<List<ItemMedia>> itemListSnapshots(CollectionReference items) {
@@ -70,4 +74,23 @@ Stream<List<ItemMedia>> itemListSnapshots(CollectionReference items) {
     }
     return result;
   });
+}
+
+Future<ItemMedia> getMovie(String _name) async {
+  Omdb client = new Omdb('e707dd75', _name);
+  String totalSeasons = await client.getMovie();
+  ItemMedia _tempItemMedia = ItemMedia();
+  _tempItemMedia.mediaName = client.movie.title;
+  _tempItemMedia.director = client.movie.director;
+  _tempItemMedia.duration = client.movie.runtime;
+  _tempItemMedia.year = client.movie.released;
+  _tempItemMedia.sinopsis = client.movie.plot;
+  _tempItemMedia.valoration = client.movie.imdbRating;
+  _tempItemMedia.posterURL = client.movie.poster;
+  _tempItemMedia.genres = client.movie.genre;
+  _tempItemMedia.movieID = client.movie.imdbID;
+  _tempItemMedia.type = client.movie.type;
+  _tempItemMedia.totalSeasons = totalSeasons;
+
+  return _tempItemMedia;
 }

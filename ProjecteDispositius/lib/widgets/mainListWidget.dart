@@ -1,3 +1,4 @@
+import 'package:ProjecteDispositius/models/user.dart';
 import 'package:ProjecteDispositius/screens/properties_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -6,15 +7,18 @@ import '../models/item.dart';
 
 class MainListWidget extends StatelessWidget {
   final ItemMedia item;
-  final String userID;
+  final NormalUser user;
+  final mostrarMirant;
+  final mostrarVistes;
 
-  const MainListWidget({
-    @required this.item, @required this.userID
-  });
+  const MainListWidget({@required this.item, @required this.user, @required this.mostrarMirant, @required this.mostrarVistes});
 
   @override
   Widget build(BuildContext context) {
-    final movies = FirebaseFirestore.instance.collection('user').doc(userID).collection('ListMovies');
+    final movies = FirebaseFirestore.instance
+        .collection('user')
+        .doc(user.id)
+        .collection('ListMovies');
     return GestureDetector(
       onLongPress: () {
         movies.doc(item.id).delete();
@@ -35,6 +39,13 @@ class MainListWidget extends StatelessWidget {
           MaterialPageRoute(
             builder: (_) => PropertiesScreen(
               item: item,
+              user: user,
+              state: mostrarMirant
+                        ? 1
+                        : mostrarVistes
+                            ? 2
+                            : 0,
+              searched: false,
             ),
           ),
         );

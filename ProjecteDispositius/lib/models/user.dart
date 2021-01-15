@@ -109,3 +109,38 @@ Stream<List<ItemMedia>> fillList(NormalUser user) {
     return fullList;
   });
 }
+
+void fillListWithQuery(NormalUser user, QuerySnapshot snapshot) {
+  for (var doc in snapshot.docs) {
+    switch (doc['state']) {
+      case "0":
+        user.listToView.add(ItemMedia.fromFirestore(doc));
+        break;
+      case "1":
+        user.listViewing.add(ItemMedia.fromFirestore(doc));
+        break;
+      case "2":
+        user.listViewed.add(ItemMedia.fromFirestore(doc));
+        break;
+    }
+  }
+}
+
+bool checkIfMovieAlreadySelected(NormalUser user, ItemMedia item) {
+  for (ItemMedia movie in user.listViewing) {
+    if (movie.mediaName == item.mediaName) {
+      return true;
+    }
+  }
+  for (ItemMedia movie in user.listViewed) {
+    if (movie.mediaName == item.mediaName) {
+      return true;
+    }
+  }
+  for (ItemMedia movie in user.listToView) {
+    if (movie.mediaName == item.mediaName) {
+      return true;
+    }
+  }
+  return false;
+}
