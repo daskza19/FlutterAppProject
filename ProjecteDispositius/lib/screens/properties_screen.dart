@@ -2,6 +2,7 @@ import 'package:ProjecteDispositius/models/user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
+import '../main.dart';
 import '../models/item.dart';
 
 class PropertiesScreen extends StatefulWidget {
@@ -41,7 +42,7 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
         padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage("assets/background.gif"),
+            image: NetworkImage(backgroundUrl),
             fit: BoxFit.fitWidth,
           ),
         ),

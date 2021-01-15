@@ -1,6 +1,10 @@
+import 'dart:ffi';
+
+import 'package:ProjecteDispositius/main.dart';
 import 'package:ProjecteDispositius/models/user.dart';
 import 'package:ProjecteDispositius/screens/user_profile_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 
 import '../models/item.dart';
@@ -49,17 +53,6 @@ class _ItemsListScreenState extends State<ItemsListScreen> {
   }
 
   Widget _buildTodoList(NormalUser actualUser) {
-    // NormalUser actualUser = NormalUser();
-    // actualUser.realName = 'Arnau Falgueras García de Atocha';
-    // actualUser.email = 'arnau@gmail.com';
-    // actualUser.estado = 'Estimo molt fortament al Josep cada dia sense parar.';
-    // actualUser.nickName = 'Arnau77';
-    // actualUser.imageURL =
-    //     'https://i.pinimg.com/736x/dd/10/76/dd10762629df6655bfec19880490dda5.jpg';
-    // actualUser.listToView = docs;
-    // actualUser.listViewed = docs.sublist(4, actualUser.listToView.length);
-    // actualUser.listViewing = [];
-
     return Scaffold(
       body: SingleChildScrollView(
         scrollDirection: Axis.vertical,
@@ -71,7 +64,7 @@ class _ItemsListScreenState extends State<ItemsListScreen> {
               padding: EdgeInsets.all(16),
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage("assets/background.gif"),
+                  image: NetworkImage(backgroundUrl),
                   fit: BoxFit.fitWidth,
                 ),
               ),
@@ -120,7 +113,7 @@ class _ItemsListScreenState extends State<ItemsListScreen> {
                               ),
                             ),
                             SizedBox(
-                              width: 16,
+                              width: 10,
                             ),
                             GestureDetector(
                               onTap: () {
@@ -242,7 +235,7 @@ class _Titles extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 25,
-      width: 110,
+      width: MediaQuery.of(context).size.width / 3.8,
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(1000),
@@ -291,7 +284,11 @@ class _ListMovies extends StatelessWidget {
           return Container(
             child: Column(
               children: [
-                MainListWidget(item: item, user: actualUser, mostrarMirant: mostrarMirant, mostrarVistes: mostrarVistes),
+                MainListWidget(
+                    item: item,
+                    user: actualUser,
+                    mostrarMirant: mostrarMirant,
+                    mostrarVistes: mostrarVistes),
                 SizedBox(
                   height: 8,
                 ),
@@ -316,24 +313,6 @@ class _UserInfo extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.end,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Container(
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(100), color: Colors.blue),
-            child: FlatButton(
-              child: Text(
-                "Tancar sessió",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 10,
-                ),
-              ),
-              //color: Colors.blue,
-              onPressed: () {
-                FirebaseAuth.instance.signOut();
-              },
-            ),
-          ),
-          Spacer(),
           Text(
             '@' + actualUser.nickName,
             style: TextStyle(color: Colors.blue),
@@ -344,7 +323,6 @@ class _UserInfo extends StatelessWidget {
                 MaterialPageRoute(
                   builder: (_) => UserProfileScreen(
                     actualUser: actualUser,
-                    
                   ),
                 ),
               );

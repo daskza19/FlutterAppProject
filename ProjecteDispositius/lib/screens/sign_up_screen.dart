@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
+import '../main.dart';
 import '../models/user.dart';
 
 // ignore: must_be_immutable
@@ -99,7 +100,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         padding: EdgeInsets.all(16),
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage("assets/background.gif"),
+            image: NetworkImage(backgroundUrl),
             fit: BoxFit.fitWidth,
           ),
         ),

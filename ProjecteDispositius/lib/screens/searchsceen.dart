@@ -7,6 +7,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
+import '../main.dart';
 import '../models/item.dart';
 import '../models/movie_model.dart';
 
@@ -105,7 +106,7 @@ class _SearchScreenState extends State<SearchScreen> {
         padding: EdgeInsets.all(16),
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage("assets/background.gif"),
+            image: NetworkImage(backgroundUrl),
             fit: BoxFit.fitWidth,
           ),
         ),
@@ -230,8 +231,7 @@ class SingleMovieWidget extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Colors.black.withOpacity(0.6),
-        borderRadius:
-            BorderRadius.all(Radius.circular(10)),
+        borderRadius: BorderRadius.all(Radius.circular(10)),
       ),
       padding: EdgeInsets.all(8),
       child: Row(
@@ -251,8 +251,7 @@ class SingleMovieWidget extends StatelessWidget {
           Expanded(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   item.mediaName,

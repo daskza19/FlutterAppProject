@@ -1,7 +1,12 @@
+import 'dart:ffi';
+
+import 'package:ProjecteDispositius/main.dart';
 import 'package:ProjecteDispositius/models/item.dart';
 import 'package:ProjecteDispositius/models/user.dart';
 import 'package:ProjecteDispositius/screens/sign_up_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 
 import 'properties_screen.dart';
@@ -39,7 +44,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         padding: EdgeInsets.all(16),
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage("assets/background.gif"),
+            image: NetworkImage(backgroundUrl),
             fit: BoxFit.fitWidth,
           ),
         ),
@@ -94,29 +99,51 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               SizedBox(height: 10),
               VistesUsuariWidget(widget: widget),
               SizedBox(height: 18),
-              LlistaPelisVistesUsuariWidget(
-                title: 'PEL·LÍCULAS/SERIES PENDENTS',
-                itemsmostrar: widget.actualUser.listToView,
-                user: widget.backUpUser == null
-                    ? widget.actualUser
-                    : widget.backUpUser,
-              ),
-              SizedBox(height: 10),
-              LlistaPelisVistesUsuariWidget(
-                title: 'PEL·LÍCULAS/SERIES MIRANT',
-                itemsmostrar: widget.actualUser.listViewing,
-                user: widget.backUpUser == null
-                    ? widget.actualUser
-                    : widget.backUpUser,
-              ),
-              SizedBox(height: 10),
-              LlistaPelisVistesUsuariWidget(
-                title: 'PEL·LÍCULAS/SERIES VISTES',
-                itemsmostrar: widget.actualUser.listViewed,
-                user: widget.backUpUser == null
-                    ? widget.actualUser
-                    : widget.backUpUser,
-              ),
+              if (widget.actualUser.listToView.isNotEmpty)
+                LlistaPelisVistesUsuariWidget(
+                  title: 'PEL·LÍCULAS/SERIES PENDENTS',
+                  itemsmostrar: widget.actualUser.listToView,
+                  user: widget.backUpUser == null
+                      ? widget.actualUser
+                      : widget.backUpUser,
+                ),
+              if (widget.actualUser.listViewing.isNotEmpty)
+                LlistaPelisVistesUsuariWidget(
+                  title: 'PEL·LÍCULAS/SERIES MIRANT',
+                  itemsmostrar: widget.actualUser.listViewing,
+                  user: widget.backUpUser == null
+                      ? widget.actualUser
+                      : widget.backUpUser,
+                ),
+              if (widget.actualUser.listViewed.isNotEmpty)
+                LlistaPelisVistesUsuariWidget(
+                  title: 'PEL·LÍCULAS/SERIES VISTES',
+                  itemsmostrar: widget.actualUser.listViewed,
+                  user: widget.backUpUser == null
+                      ? widget.actualUser
+                      : widget.backUpUser,
+                ),
+              if (widget.backUpUser == null)
+                Container(
+                  height: 30,
+                  width: 250,
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(100),
+                      color: Colors.blue),
+                  child: FlatButton(
+                    child: Text(
+                      "Tancar sessió",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                      ),
+                    ),
+                    //color: Colors.blue,
+                    onPressed: () {
+                      FirebaseAuth.instance.signOut();
+                    },
+                  ),
+                )
             ],
           ),
         ),
@@ -204,6 +231,7 @@ class LlistaPelisVistesUsuariWidget extends StatelessWidget {
             ],
           ),
         ),
+        SizedBox(height: 10),
       ],
     );
   }

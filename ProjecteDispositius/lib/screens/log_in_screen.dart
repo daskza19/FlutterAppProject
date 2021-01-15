@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../main.dart';
 import 'sign_up_screen.dart';
 
 // ignore: must_be_immutable
@@ -107,7 +108,7 @@ class _LogInScreenState extends State<LogInScreen> {
         padding: EdgeInsets.all(16),
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage("assets/background.gif"),
+            image: NetworkImage(backgroundUrl),
             fit: BoxFit.fitWidth,
           ),
         ),
