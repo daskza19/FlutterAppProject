@@ -67,7 +67,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 .where('nickName', isEqualTo: _controllerNickName.text)
                 .snapshots()
                 .isEmpty ==
-            false) {
+            true) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("Aquest nom d'usuari ja està agafat"),
